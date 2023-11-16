@@ -255,6 +255,9 @@ interface PersonneInterface {
   contact: String!
 }
 
+###################
+###### Types ######
+###################
 type Syndic implements PersonneInterface {
   id: ID!
   nom: String!
@@ -292,6 +295,9 @@ type Mutation {
   deleteProprietaire(id: ID!): Proprietaire @delete
 }
 
+####################
+###### Inputs ######
+####################
 input CreateSyndicInput {
   nom: String!
   contact: String!
