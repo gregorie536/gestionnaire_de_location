@@ -1,0 +1,325 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime
+    @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+"Indicates what fields are available at the top level of a query operation."
+type Query {
+    "Find a single user by an identifying attribute."
+    user(
+        "Search by primary key."
+        id: ID @eq @rules(apply: ["prohibits:email", "required_without:email"])
+
+        "Search by email address."
+        email: String
+            @eq
+            @rules(apply: ["prohibits:id", "required_without:id", "email"])
+    ): User @find
+
+    "List multiple users."
+    users(
+        "Filters by name. Accepts SQL LIKE wildcards `%` and `_`."
+        name: String @where(operator: "like")
+    ): [User!]! @paginate(defaultCount: 10)
+
+#####################
+###### Queries ######
+#####################
+    immeubles: [Immeuble!]! @paginate
+    immeuble(id: ID!): Immeuble @find
+    appartements: [Appartement!]! @paginate
+    appartement(id: ID!): Appartement @find
+    personnes: [Personne!]! @paginate
+    personne(id: ID!): Personne @find
+    equipements: [Equipement!]! @paginate
+    equipement(id: ID!): Equipement @find
+    options: [Option!]! @paginate
+    option(id: ID!): Option @find
+    quittances: [Quittance!]! @paginate
+    quittance(id: ID!): Quittance @find
+}
+
+"Account of a person who utilizes this application."
+type User {
+    "Unique primary key."
+    id: ID!
+
+    "Non-unique name."
+    name: String!
+
+    "Unique email address."
+    email: String!
+
+    "When the email was verified."
+    email_verified_at: DateTime
+
+    "When the account was created."
+    created_at: DateTime!
+
+    "When the account was last updated."
+    updated_at: DateTime!
+}
+
+###################
+###### Types ######
+###################
+type Immeuble {
+    id: ID!
+    nom: String!
+    adresse: String!
+    syndic: Personne
+    appartements: [Appartement!]!
+    equipements: [Equipement!]!
+}
+
+type Appartement {
+    id: ID!
+    type: String!
+    proprietaire: Personne
+    options: [Option!]!
+    locataires: [Personne!]!
+    quittances: [Quittance!]!
+}
+
+type Personne {
+    id: ID!
+    nom: String!
+    contact: String!
+    type: String!
+    num_compte: String
+    assujetti_tva: Boolean
+    immeubles: [Immeuble!]!
+    appartements: [Appartement!]!
+}
+
+type Equipement {
+    id: ID!
+    nom: String!
+    description: String!
+}
+
+type Option {
+    id: ID!
+    nom: String!
+}
+
+type Quittance {
+    id: ID!
+    appartement: Appartement!
+    locataire: Personne!
+    montant: Float!
+    date_emission: DateTime!
+    date_paiement: DateTime
+}
+
+#######################
+###### Mutations ######
+#######################
+type Mutation {
+  createImmeuble(input: CreateImmeubleInput!): Immeuble! @create
+  updateImmeuble(id: ID!, input: UpdateImmeubleInput!): Immeuble! @update
+  deleteImmeuble(id: ID!): Immeuble @delete
+
+  createAppartement(input: CreateAppartementInput!): Appartement! @create
+  updateAppartement(id: ID!, input: UpdateAppartementInput!): Appartement! @update
+  deleteAppartement(id: ID!): Appartement @delete
+
+  createPersonne(input: CreatePersonneInput!): Personne! @create
+  updatePersonne(id: ID!, input: UpdatePersonneInput!): Personne! @update
+  deletePersonne(id: ID!): Personne @delete
+
+  createEquipement(input: CreateEquipementInput!): Equipement! @create
+  updateEquipement(id: ID!, input: UpdateEquipementInput!): Equipement! @update
+  deleteEquipement(id: ID!): Equipement @delete
+
+  createOption(input: CreateOptionInput!): Option! @create
+  updateOption(id: ID!, input: UpdateOptionInput!): Option! @update
+  deleteOption(id: ID!): Option @delete
+
+  createQuittance(input: CreateQuittanceInput!): Quittance! @create
+  updateQuittance(id: ID!, input: UpdateQuittanceInput!): Quittance! @update
+  deleteQuittance(id: ID!): Quittance @delete
+
+}
+
+####################
+###### Inputs ######
+####################
+input CreateImmeubleInput {
+  nom: String!
+  adresse: String!
+  syndicId: ID!
+}
+
+input UpdateImmeubleInput {
+  nom: String
+  adresse: String
+  syndicId: ID
+}
+
+input CreateAppartementInput {
+  type: String!
+  immeubleId: ID!
+  proprietaireId: ID!
+}
+
+input UpdateAppartementInput {
+  type: String
+  immeubleId: ID
+  proprietaireId: ID
+}
+
+input CreatePersonneInput {
+  nom: String!
+  contact: String!
+  type: String!
+  num_compte: String
+  assujetti_tva: Boolean
+}
+
+input UpdatePersonneInput {
+  nom: String
+  contact: String
+  type: String
+  num_compte: String
+  assujetti_tva: Boolean
+}
+
+input CreateEquipementInput {
+  nom: String!
+  description: String!
+}
+
+input UpdateEquipementInput {
+  nom: String
+  description: String
+}
+
+input CreateOptionInput {
+  nom: String!
+}
+
+input UpdateOptionInput {
+  nom: String
+}
+
+input CreateQuittanceInput {
+  appartementId: ID!
+  locataireId: ID!
+  montant: Float!
+  date_emission: DateTime!
+  date_paiement: DateTime
+}
+
+input UpdateQuittanceInput {
+  appartementId: ID
+  locataireId: ID
+  montant: Float
+  date_emission: DateTime
+  date_paiement: DateTime
+}
+
+##############################
+###### Requêtes Postman ######
+#############################
+
+# query {
+#    immeubles(first: 10) {
+#      data {
+#        id
+#        nom
+#      }
+#    }
+# }
+
+# query {
+#   immeubles(first: 10) {
+#     data {
+#       id
+#       nom
+#     }
+#     paginatorInfo {
+#       total
+#       count
+#       currentPage
+#       lastPage
+#     }
+#   }
+# }
+
+########################
+###### Interfaces ######
+########################
+interface PersonneInterface {
+  id: ID!
+  nom: String!
+  contact: String!
+}
+
+type Syndic implements PersonneInterface {
+  id: ID!
+  nom: String!
+  contact: String!
+}
+
+type Locataire implements PersonneInterface {
+  id: ID!
+  nom: String!
+  contact: String!
+}
+
+type Proprietaire implements PersonneInterface {
+  id: ID!
+  nom: String!
+  contact: String!
+}
+
+type Query {
+  personnes: [PersonneInterface!]! @paginate
+  personne(id: ID!): PersonneInterface @find
+}
+
+type Mutation {
+  createSyndic(input: CreateSyndicInput!): Syndic! @create
+  updateSyndic(id: ID!, input: UpdateSyndicInput!): Syndic! @update
+  deleteSyndic(id: ID!): Syndic @delete
+
+  createLocataire(input: CreateLocataireInput!): Locataire! @create
+  updateLocataire(id: ID!, input: UpdateLocataireInput!): Locataire! @update
+  deleteLocataire(id: ID!): Locataire @delete
+
+  createProprietaire(input: CreateProprietaireInput!): Proprietaire! @create
+  updateProprietaire(id: ID!, input: UpdateProprietaireInput!): Proprietaire! @update
+  deleteProprietaire(id: ID!): Proprietaire @delete
+}
+
+input CreateSyndicInput {
+  nom: String!
+  contact: String!
+}
+
+input UpdateSyndicInput {
+  nom: String
+  contact: String
+}
+
+input CreateLocataireInput {
+  nom: String!
+  contact: String!
+}
+
+input UpdateLocataireInput {
+  nom: String
+  contact: String
+}
+
+input CreateProprietaireInput {
+  nom: String!
+  contact: String!
+}
+
+input UpdateProprietaireInput {
+  nom: String
+  contact: String
+}
+
+
