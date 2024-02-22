@@ -9,5 +9,10 @@
         "axios": "^1.6.1",
         "laravel-vite-plugin": "^0.8.0",
         "vite": "^4.0.0"
+    },
+    "dependencies": {
+        "@apollo/client": "^3.8.10",
+        "graphql": "^16.8.1",
+        "graphql-tag": "^2.12.6"
     }
 }
